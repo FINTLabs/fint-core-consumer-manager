@@ -11,4 +11,9 @@ class ConsumerController(val consumerService: ConsumerService) {
     fun getRepo(@PathVariable repoName: String): Map<String, String> {
         return consumerService.getSpringVersion(repoName)
     }
+
+    @GetMapping("topic/{repoName}")
+    fun getTopic(@PathVariable repoName: String): Map<String, List<String>>{
+        return consumerService.getRepoTopic(repoName)
+    }
 }
