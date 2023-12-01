@@ -3,21 +3,29 @@ package no.fintlabs.consumer.manager
 import no.fintlabs.consumer.manager.config.GithubConfig
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHub
+import org.springframework.scheduling.annotation.Async
+import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CompletableFuture
 
+@EnableAsync
 @Service
 class GithubService(private val githubConfig: GithubConfig) {
 
     private val github: GitHub = GitHub.connectUsingOAuth(githubConfig.token)
 
-    fun updateVersion(repo: String, version: String) {
+    @Async
+    fun updateVersion(repo: String, version: String): CompletableFuture<Void> {
         val repository: GHRepository = github.getRepository("${githubConfig.username}/$repo")
         val branchName = "update-spring-$version"
+
         createBranch(repository, branchName)
         updateBuildGradle(repository, branchName, version)
         createPullRequest(repository, branchName)
+
+        return CompletableFuture.completedFuture(null)
     }
 
     private fun createBranch(repo: GHRepository, branchName: String) {
