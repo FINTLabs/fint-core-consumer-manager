@@ -24,9 +24,8 @@ class GithubService {
         // Create pull request
     }
 
-    private fun createBranch(repo: GHRepository) {
-        // Create branch
-        // Checkout branch
+    private fun createBranch(repo: GHRepository, branchName: String) {
+        repo.createRef("refs/heads/$branchName", repo.getRef("heads/main").getObject().sha)
     }
 
     private fun updateBuildGradle(repo: String, branch: String, version: String) {
