@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/spring")
-class SpringController {
+class SpringController(val springService: SpringService) {
 
-    @GetMapping
+    @GetMapping("/version")
     fun getSpringVersion(): ResponseEntity<String> {
-        return ResponseEntity.ok("3.2.0")
+        return ResponseEntity.ok(springService.getSpringVersion())
     }
 
 }
