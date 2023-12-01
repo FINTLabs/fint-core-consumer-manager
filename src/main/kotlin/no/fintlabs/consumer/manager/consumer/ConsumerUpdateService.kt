@@ -1,10 +1,12 @@
 package no.fintlabs.consumer.manager.consumer
 
+import no.fintlabs.consumer.manager.GithubService
 import org.springframework.stereotype.Service
 
 @Service
-class ConsumerUpdateService {
+class ConsumerUpdateService(githubService: GithubService) {
 
+    val githubService: GithubService = githubService
     val springCache: MutableMap<String, String> = mutableMapOf()
 
     fun updateSpringBoot(repos: Map<String, String>): Map<String, String>{
@@ -16,7 +18,7 @@ class ConsumerUpdateService {
                 // If failed, set status to FAILED in cache
             }
             if (repositoryStatuses[repo] == "ACCEPTED") {
-                // Send to GithubService
+                githubService.updateVersion(repo, version)
             }
         }
         return repositoryStatuses
