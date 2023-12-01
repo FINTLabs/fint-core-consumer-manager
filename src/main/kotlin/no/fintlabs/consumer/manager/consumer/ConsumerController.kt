@@ -24,7 +24,7 @@ class ConsumerController(val consumerService: ConsumerService, val consumerUpdat
 
     @PostMapping("/update/spring")
     fun updateSpringBoot(@RequestBody request: Map<String, String>): ResponseEntity<Any> {
-        return consumerUpdateService.updateSpringBoot(request)
+        return ResponseEntity.ok(consumerUpdateService.updateSpringBoot(request))
     }
 
 }
