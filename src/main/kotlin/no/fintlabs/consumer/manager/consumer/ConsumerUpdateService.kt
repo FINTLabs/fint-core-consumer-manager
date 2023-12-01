@@ -5,20 +5,33 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 
 @Service
-class ConsumerUpdateService(val githubService: GithubService) {
+class ConsumerUpdateService(private val githubService: GithubService) {
 
-    val springCache: MutableMap<String, String> = mutableMapOf()
+    private val springCache: MutableMap<String, String> = mutableMapOf()
 
     fun updateSpringBoot(repos: Map<String, String>): Map<String, String> {
         val repositoryStatuses = setStatusOfRepositories(repos)
         repos.forEach { (repo, version) ->
-            if (repositoryStatuses[repo] == "ACCEPTED") {
-                CompletableFuture.runAsync {
-                    githubService.updateVersion(repo, version)
-                }
+            when (repositoryStatuses[repo]) {
+                "ACCEPTED" -> CompletableFuture.runAsync { githubService.updateVersion(repo, version) }
+                "PROCESSING" -> handleProcessingRepo(repo)
             }
         }
         return repositoryStatuses
+    }
+
+    private fun handleProcessingRepo(repo: String) {
+        githubService.checkCIStatus(repo).thenAccept { ciStatus ->
+            println(ciStatus)
+            when (ciStatus) {
+                "clean" -> {
+                    githubService.mergePullRequest(repo).thenRun {
+                        springCache[repo] = "DONE"
+                    }
+                }
+                "FAILED" -> springCache[repo] = "FAILED"
+            }
+        }
     }
 
     fun setStatusOfRepositories(repos: Map<String, String>): Map<String, String> {
@@ -33,5 +46,4 @@ class ConsumerUpdateService(val githubService: GithubService) {
         }
         return statusOfRepos
     }
-
 }
