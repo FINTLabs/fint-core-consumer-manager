@@ -32,8 +32,8 @@ class GithubService {
         // Update version in build.gradle
     }
 
-    private fun createPullRequest(repo: String, branch: String) {
-        // Create pull request
+    private fun createPullRequest(repo: GHRepository, branch: String) {
+        repo.createPullRequest("Update Spring Boot version", branch, "main", "Updating Spring Boot to latest version")
     }
 
 }
