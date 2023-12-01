@@ -1,25 +1,19 @@
 package no.fintlabs.consumer.manager
 
+import no.fintlabs.consumer.manager.config.GithubConfig
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHub
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.nio.charset.StandardCharsets
 
 @Service
-class GithubService {
+class GithubService(private val githubConfig: GithubConfig) {
 
-    @Value("\${fint.github.token:")
-    private lateinit var token: String
-
-    @Value("\${fint.github.username:FINTLabs}")
-    private lateinit var username: String
-
-    private val github: GitHub = GitHub.connectUsingOAuth(token)
+    private val github: GitHub = GitHub.connectUsingOAuth(githubConfig.token)
 
     fun updateVersion(repo: String, version: String) {
-        val repository: GHRepository = github.getRepository("$username/$repo")
+        val repository: GHRepository = github.getRepository("${githubConfig.username}/$repo")
         val branchName = "update-spring-$version"
         createBranch(repository, branchName)
         updateBuildGradle(repository, branchName, version)
