@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 
 @Service
-class ConsumerUpdateService(githubService: GithubService) {
+class ConsumerUpdateService(val githubService: GithubService) {
 
-    val githubService: GithubService = githubService
     val springCache: MutableMap<String, String> = mutableMapOf()
 
     fun updateSpringBoot(repos: Map<String, String>): Map<String, String> {
