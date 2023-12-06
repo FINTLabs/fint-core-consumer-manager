@@ -1,6 +1,5 @@
 package no.fintlabs.consumer.manager.consumer
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -35,36 +34,26 @@ class ConsumerService {
         return map
     }
 
-    val repoMap: MutableMap<String, List<String>> = mutableMapOf()
-    fun getRepoTopic(repoName: String): Map<String, List<String>> {
+
+    val repos = mutableListOf<String>()
+    fun getConsumerRepos(): List<String> {
         try {
             val restTemplate = RestTemplate()
-            val result = restTemplate.getForObject("https://api.github.com/repos/FINTLabs/$repoName/topics", String::class.java)
+            val result = restTemplate.getForObject("https://api.github.com/search/repositories?q=org:Fintlabs+topic:core+topic:consumer", String::class.java)
 
             result?.let {
-                val topicsMap = it.toTopicsMap()
-
-                val topicsList = topicsMap["names"] as? List<String>
-
-                if (topicsList != null && ("core" in topicsList || "consumer" in topicsList)) {
-                    // Filter the topics to only include "core" and "consumer"
-                    val filteredTopics = topicsList.filter { topic -> topic == "core" || topic == "consumer" }
-
-                    repoMap[repoName] = filteredTopics
-                    return repoMap
+                it.split(",").forEach{line ->
+                    if (line.contains("full_name")){
+                        repos.add(line.substring(22).replace("\"", ""))
+                    }
                 }
             }
+            return repos
         } catch (e: Exception) {
             log.error("Error:", e)
         }
 
-        return emptyMap()
-    }
-
-    // Extension function to convert JSON string to Map
-    private fun String.toTopicsMap(): Map<*, *> {
-        val objectMapper = jacksonObjectMapper()
-        return objectMapper.readValue(this, Map::class.java)
+        return emptyList()
     }
 }
 

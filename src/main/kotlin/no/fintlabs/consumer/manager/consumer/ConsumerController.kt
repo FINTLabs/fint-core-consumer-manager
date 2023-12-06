@@ -17,9 +17,9 @@ class ConsumerController(val consumerService: ConsumerService, val consumerUpdat
         return consumerService.getSpringVersion(repoName)
     }
 
-    @GetMapping("topic/{repoName}")
-    fun getTopic(@PathVariable repoName: String): Map<String, List<String>>{
-        return consumerService.getRepoTopic(repoName)
+    @GetMapping("topic")
+    fun getTopic(): List<String>{
+        return consumerService.getConsumerRepos()
     }
 
     @PostMapping("/update/spring")
