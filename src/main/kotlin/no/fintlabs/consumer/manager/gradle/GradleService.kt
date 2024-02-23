@@ -5,10 +5,11 @@ import no.fintlabs.consumer.manager.consumer.ConsumerService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import java.util.function.Consumer
 import kotlin.math.log
 
 @Service
-class GradleService {
+class GradleService(val consumerService: ConsumerService) {
 
     @Value("\${fint.gradle.base-url:https://services.gradle.org/versions/current}")
     private lateinit var baseUrl: String
@@ -21,8 +22,17 @@ class GradleService {
         return jsonNode.path("version").asText()
     }
 
-    fun getGradleVersions(repo:String): Map<String, String> {
+    fun getAllGradleVersionsInRepo(): Map<String, String> {
         val map = mutableMapOf<String, String>()
+        val consumers = consumerService.getConsumerRepos()
+        for (repo in consumers) {
+            val gradleVersion = getGradleVersion(repo)
+            map[repo] = gradleVersion
+        }
+        return map
+    }
+
+    fun getGradleVersion(repo: String): String {
         try {
             val restTemplate = RestTemplate()
             val result = restTemplate.getForObject(
@@ -30,17 +40,16 @@ class GradleService {
                         "/main/gradle/wrapper/gradle-wrapper.properties", String::class.java
             )
             result.let {
-                result?.split("\n")?.forEach {line ->
+                result?.split("\n")?.forEach { line ->
                     if (line.contains("distributionUrl")) {
                         val version = line.subSequence(66, 69).toString()
-                        map.put(repo, version)
+                        return version
                     }
                 }
             }
-            return map
         } catch (e: Exception) {
             print(e)
         }
-        return emptyMap();
+        return ""
     }
 }

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/gradle")
 class GradleController(val gradleService: GradleService) {
 
-    @GetMapping("/{repo}")
+    @GetMapping("/")
     fun getGradleVersions(@PathVariable repo: String): ResponseEntity<Map<String, String>> {
-        return ResponseEntity.ok(gradleService.getGradleVersions(repo))
+        return ResponseEntity.ok(gradleService.getAllGradleVersionsInRepo())
     }
 
     @GetMapping("/version")
