@@ -16,6 +16,11 @@ class ConsumerController(val consumerService: ConsumerService, val consumerUpdat
         return consumerService.getSpringVersion()
     }
 
+    @GetMapping("/fintVersion")
+    fun getFintVerison(): Map<String, String>{
+        return consumerService.getFintVersion()
+    }
+
     @PostMapping("/update/spring")
     fun updateSpringBoot(@RequestBody request: Map<String, String>): ResponseEntity<Any> {
         return ResponseEntity.ok(consumerUpdateService.updateSpringBoot(request))
